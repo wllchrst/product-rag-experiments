@@ -6,7 +6,7 @@ ENVS = ["GEMINI_API_KEY"]
 class EnvHelper:
     """Class for gathering and saving all env for the application """
     def __init__(self):
-        load_dotenv()
+        load_dotenv(dotenv_path='.env')
         self.envs = {}
 
         self.gather_envs()
@@ -28,6 +28,7 @@ class EnvHelper:
         return True
     
     def assign_env(self):
-        self.SESSION_PPT_COLLECTION = self.envs[ENVS[0]]
+        self.GEMINI_API_KEY = self.envs[ENVS[0]]
+        print(self.GEMINI_API_KEY)
 
 env_helper = EnvHelper()
