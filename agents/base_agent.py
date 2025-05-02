@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 class BaseAgent(ABC):
     @abstractmethod
-    def execute_task(self):
+    def execute_task(self, data: dict):
         """
         Executes the task assigned to the agent.
         """
