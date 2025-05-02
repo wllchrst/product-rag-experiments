@@ -1,0 +1,4 @@
+from interfaces.product_information import ProductInformation
+from interfaces.review import Review
+from interfaces.emotion_based_input import EmotionBasedInput
+from interfaces.agent_config import AgentConfig
