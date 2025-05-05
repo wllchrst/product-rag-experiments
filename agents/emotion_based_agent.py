@@ -1,27 +1,9 @@
 from agents.base_agent import BaseAgent
-from interfaces import EmotionBasedInput, AgentConfig
-from llm import GeminiLLM
-from helpers import configuration_helper
+from interfaces import EmotionBasedInput
 
 class EmotionBasedAgent(BaseAgent):
     def __init__(self, config_key: str = None):
-        super().__init__()
-        if config_key is None:
-            raise ValueError("config_key cannot be None")
-
-        self.llm = GeminiLLM()
-        configuration = configuration_helper.configs[config_key]
-        self.config = AgentConfig(**configuration)
-
-    def format_config(self):
-        format = f"""
-Role: {self.config.role}
-Goal: {self.config.goal}
-Backstory: {self.config.backstory}
-
-"""
-
-        return format
+        super().__init__(config_key=config_key)
     
     def format_input(self, input: EmotionBasedInput):
         product_info = f"""
@@ -32,7 +14,6 @@ Rating: {input.product_information['overall_rating']}
 
 Reviews:\n
 """
-
         product_reviews = ''
         for review in input.reviews:
             product_reviews += f"- {review['review']} (Rating: {review['rating']}, Emotion: {review['emotion']})\n"
