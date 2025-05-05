@@ -29,6 +29,5 @@ class EnvHelper:
     
     def assign_env(self):
         self.GEMINI_API_KEY = self.envs[ENVS[0]]
-        print(self.GEMINI_API_KEY)
 
 env_helper = EnvHelper()

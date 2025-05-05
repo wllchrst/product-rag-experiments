@@ -4,7 +4,6 @@ class ConfigurationHelper:
     def __init__(self):
         self.configs = {}
         self.gather_config()
-        print(self.configs)
         
     def gather_config(self):
         config_file_paths = os.listdir("configs")

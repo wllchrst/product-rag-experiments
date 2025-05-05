@@ -8,7 +8,6 @@ class GeminiLLM(BaseLLM):
     def __init__(self):
         super().__init__()
         self.API_KEY = env_helper.GEMINI_API_KEY
-        print(self.API_KEY)
         self.client = genai.Client(api_key=self.API_KEY)
 
     def answer(self, prompt: str):
