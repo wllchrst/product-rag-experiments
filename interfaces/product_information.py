@@ -6,3 +6,4 @@ class ProductInformation:
     description: str
     price: float
     overall_rating: float
+    link: str
