@@ -1,5 +1,7 @@
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 from helpers import env_helper
+from interfaces import Review
+from typing import List
 import torch
 class ClassificationHandler:
     def __init__(self):
@@ -9,7 +11,7 @@ class ClassificationHandler:
             0: "love",
             1: "anger",
             2: "happy",
-            3: "feat",
+            3: "fear",
             4: "sadness",
         }
 
@@ -20,10 +22,19 @@ class ClassificationHandler:
         self.model.to(self.device)
         self.model.eval()
     
-    def predict(self, text: str):
+    def predict(self, text: str) -> str:
         inputs = self.tokenizer(text, return_tensors="pt", truncation=True, padding=True).to(self.device)
         with torch.no_grad():
             outputs = self.model(**inputs)
             logits = outputs.logits
             predicted_class = logits.argmax().item()
-            print("Predicted class:", self.mapping[predicted_class])
+            # print(f'{text} - {self.mapping[predicted_class]}')
+            return self.mapping[predicted_class]
+    
+    def assign_emotion(self, reviews: List[Review]) -> List[Review]:
+        assigned_reviews = []
+        for review in reviews:
+            review.emotion = self.predict(review.review)
+            assigned_reviews.append(review)
+        
+        return assigned_reviews
