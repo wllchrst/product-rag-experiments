@@ -1,3 +1,5 @@
 from handler.agent_handler import AgentHandler
 from handler.classification_handler import ClassificationHandler
 from handler.data_handler import DataHandler
+from handler.logging_handler import LoggingHandler
+from handler.evaluation_handler import EvaluationHandler
