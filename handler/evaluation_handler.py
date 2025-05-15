@@ -1,5 +1,5 @@
 from evaluate import load
-from interfaces import ProductInformation
+from interfaces import ProductInformation, EvaluationData
 from typing import List
 from handler.logging_handler import LoggingHandler
 class EvaluationHandler:
@@ -18,10 +18,14 @@ class EvaluationHandler:
             print(f"Rouge: {results_rouge}")
             print(f"BertScore: {results_bert}")
 
+            evaluation_data = EvaluationData(
+                product_information=product_information,
+                ground_truths=ground_truth,
+                prediction_result=prediction,
+                rogue=results_rouge,
+                bert=results_bert
+            )
+
             self.logging_handler.log(
-                product_information,
-                ground_truths,
-                prediction,
-                results_rouge,
-                results_bert
+                evaluation_data=evaluation_data
             )
