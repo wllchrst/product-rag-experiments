@@ -1,14 +1,29 @@
 from interfaces import EmotionBasedInput, ConclusionBasedInput
 from handler.data_handler import DataHandler
 from handler.classification_handler import ClassificationHandler
+from handler.evaluation_handler import EvaluationHandler
 from agents import EmotionBasedAgent, ConclusionAgent
 from dataclasses import asdict
-from handler.classification_handler import ClassificationHandler
 from collections import defaultdict
+
+gts = [
+    """- The packaging needs to be improved because there are still many damaged ones
+- The product needs to be checked again or improved because there are many malfunctions
+- The seller needs to pay more attention to the products sent, to prevent shipping errors
+- The placement of the warranty card needs to be improved, because the current one makes it prone to damage""",
+
+    """- inconsistent delivery, some are slow, some are fast
+- unsafe packaging, so the box is dented and dirty
+- wrong product sent (color)
+- placement of the warranty card needs to be reconsidered so that it is not easily torn and is outside the box
+- product quality is poor and needs to be given more attention"""
+]
+
 class AgentHandler:
     def __init__(self):
         self.data_handler = DataHandler()
         self.classification_handler = ClassificationHandler()
+        self.evaluation_handler = EvaluationHandler()
         
         self.emotion_based_agent = EmotionBasedAgent(config_key='emotion_based_config')
         self.conclusion_agent = ConclusionAgent(config_key='conclusion_based_config')
@@ -51,6 +66,12 @@ class AgentHandler:
             conclusion = self.emotion_based_agent.execute_task(data=asdict(ebi))
             conclusions.append(conclusion)
         
-        final_answer = self.conclusion_agent.execute_task(data=asdict(ConclusionBasedInput(conclusions=conclusions)))        
+        final_answer = self.conclusion_agent.execute_task(data=asdict(ConclusionBasedInput(conclusions=conclusions)))
+
+        self.evaluation_handler.evaluate(
+            product_information=product_information,
+            ground_truths=gts,
+            prediction=final_answer
+        )
 
         return final_answer
