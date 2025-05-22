@@ -24,5 +24,6 @@ class LoggingHandler:
                 mlflow.log_param("prediction", prediction)
                 mlflow.log_param("rouge", evaluation_data.rogue)
                 mlflow.log_param("bert", evaluation_data.bert)
+                mlflow.log_param("bleu", evaluation_data.bleu)
         except Exception as e:
             print(f"Error: {e}")
