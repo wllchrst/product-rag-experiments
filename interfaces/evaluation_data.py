@@ -12,3 +12,4 @@ class EvaluationData:
     rogue: dict
     bert: dict
     bleu: dict
+    product_search: str

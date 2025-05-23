@@ -10,7 +10,7 @@ class EvaluationHandler:
         self.bertscore = load("bertscore")
         self.bleu = load("bleu")
 
-    def evaluate(self, product_information: ProductInformation, ground_truths: List[str], prediction: str):
+    def evaluate(self, product_information: ProductInformation, ground_truths: List[str], prediction: str, product_search: str):
         # Rouge and Bleu simply does a comparation between the prediction and the ground truth without using any knowledge like BERT does.
         results_rouge = self.rouge.compute(predictions=[prediction], references=[ground_truths])
         results_bleu = self.bleu.compute(predictions=[prediction], references=[ground_truths])
@@ -26,7 +26,8 @@ class EvaluationHandler:
             prediction_result=prediction,
             rogue=results_rouge,
             bert=results_bert,
-            bleu=results_bleu
+            bleu=results_bleu,
+            product_search=product_search
         )
 
         self.logging_handler.log(

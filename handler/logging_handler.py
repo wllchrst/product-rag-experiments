@@ -1,7 +1,6 @@
 import mlflow
 from helpers import env_helper
 from interfaces import EvaluationData
-from typing import List
 from interfaces.evaluation_data import EvaluationData
 class LoggingHandler:
     def __init__(self):
@@ -22,8 +21,10 @@ class LoggingHandler:
                 mlflow.log_param("price", product_information.price)
                 mlflow.log_param("ground_truths", ground_truths)
                 mlflow.log_param("prediction", prediction)
-                mlflow.log_param("rouge", evaluation_data.rogue)
-                mlflow.log_param("bert", evaluation_data.bert)
-                mlflow.log_param("bleu", evaluation_data.bleu)
+                mlflow.log_param("product_search", evaluation_data.product_search)
+
+                mlflow.log_metric("rouge", evaluation_data.rogue)
+                mlflow.log_metric("bert", evaluation_data.bert)
+                mlflow.log_metric("bleu", evaluation_data.bleu)
         except Exception as e:
             print(f"Error: {e}")
