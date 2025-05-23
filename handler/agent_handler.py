@@ -2,9 +2,10 @@ from interfaces import EmotionBasedInput, ConclusionBasedInput
 from handler.data_handler import DataHandler
 from handler.classification_handler import ClassificationHandler
 from handler.evaluation_handler import EvaluationHandler
-from agents import EmotionBasedAgent, ConclusionAgent
+from agents import EmotionBasedAgent, ConclusionAgent, WebAgent
 from dataclasses import asdict
 from collections import defaultdict
+from interfaces.product_information import ProductInformation
 
 gts = [
     """- The packaging needs to be improved because there are still many damaged ones
@@ -27,6 +28,7 @@ class AgentHandler:
         
         self.emotion_based_agent = EmotionBasedAgent(config_key='emotion_based_config')
         self.conclusion_agent = ConclusionAgent(config_key='conclusion_based_config')
+        self.web_agent =  WebAgent('web_based_config')
 
     def test_evaluation_agent(self):
         """
@@ -56,6 +58,8 @@ class AgentHandler:
         for review in reviews:
             grouped_reviews[review.emotion].append(review)
         
+        product_search = self.web_agent.execute_task(asdict(product_information))
+        
         conclusions = []
         for grouped_review in grouped_reviews.values():
             ebi = EmotionBasedInput(
@@ -65,13 +69,17 @@ class AgentHandler:
             
             conclusion = self.emotion_based_agent.execute_task(data=asdict(ebi))
             conclusions.append(conclusion)
+
+        conclusion_input = ConclusionBasedInput(conclusions=conclusions, product_search=product_search)
         
-        final_answer = self.conclusion_agent.execute_task(data=asdict(ConclusionBasedInput(conclusions=conclusions)))
+        final_answer = self.conclusion_agent.\
+            execute_task(data=asdict(conclusion_input))
 
         self.evaluation_handler.evaluate(
             product_information=product_information,
             ground_truths=gts,
-            prediction=final_answer
+            prediction=final_answer,
+            product_search=product_search
         )
 
         return final_answer

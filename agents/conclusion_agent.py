@@ -11,6 +11,9 @@ class ConclusionAgent (BaseAgent):
         formatted_input = f"""
 {formatted_config}
 
+Product Information:
+{input.product_search}
+
 Below are the conclusions based on the reviews provided:
 """
         for i, conclusion in enumerate(input.conclusions):
@@ -27,6 +30,7 @@ Conclusion {i + 1}:
         """
         input = ConclusionBasedInput(**data)
         formatted_input = self.format_input(input)
+        print(formatted_input)
 
         answer = self.llm.answer(formatted_input)
         
