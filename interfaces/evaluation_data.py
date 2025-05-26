@@ -9,7 +9,7 @@ class EvaluationData:
     product_information: ProductInformation
     prediction_result: str
     ground_truths: List[str]
-    rogue: dict
+    rouge: dict
     bert: dict
     bleu: dict
     product_search: str

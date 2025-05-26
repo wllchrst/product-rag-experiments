@@ -24,7 +24,7 @@ class EvaluationHandler:
             product_information=product_information,
             ground_truths=ground_truths,
             prediction_result=prediction,
-            rogue=results_rouge,
+            rouge=results_rouge,
             bert=results_bert,
             bleu=results_bleu,
             product_search=product_search
