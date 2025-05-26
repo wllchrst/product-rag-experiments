@@ -1,4 +1,5 @@
 import mlflow
+import numpy as np
 from helpers import env_helper
 from interfaces import EvaluationData
 from interfaces.evaluation_data import EvaluationData
@@ -7,6 +8,18 @@ class LoggingHandler:
         mlflow.set_tracking_uri(env_helper.MLFLOW_URL)
         mlflow.set_experiment("Product RAG Experiments logging")
         pass
+
+    def insert_metric_from_dict(self, data: dict, key_prefix: str):
+        print(data)
+        for key, value in data.items():
+            value_to_insert = value
+
+            if isinstance(value_to_insert, list):
+                value_to_insert = np.mean(value_to_insert)
+            elif isinstance(value_to_insert, str):
+                continue
+            
+            mlflow.log_metric(f"{key_prefix}_{key}", value_to_insert)
 
     def log(self, evaluation_data: EvaluationData):
         """Log the product information, ground truths, and prediction to mlflow"""
@@ -23,8 +36,9 @@ class LoggingHandler:
                 mlflow.log_param("prediction", prediction)
                 mlflow.log_param("product_search", evaluation_data.product_search)
 
-                mlflow.log_metric("rouge", evaluation_data.rogue)
-                mlflow.log_metric("bert", evaluation_data.bert)
-                mlflow.log_metric("bleu", evaluation_data.bleu)
+                self.insert_metric_from_dict(evaluation_data.bert, 'bert')
+                self.insert_metric_from_dict(evaluation_data.bleu, 'bleu')
+                self.insert_metric_from_dict(evaluation_data.rouge, 'rouge')
+
         except Exception as e:
             print(f"Error: {e}")
