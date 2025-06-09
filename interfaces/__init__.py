@@ -2,5 +2,6 @@ from interfaces.product_information import ProductInformation
 from interfaces.review import Review
 from interfaces.emotion_based_input import EmotionBasedInput
 from interfaces.conclusion_based_input import ConclusionBasedInput
+from interfaces.chain_based_input import ChainBasedInput
 from interfaces.agent_config import AgentConfig
 from interfaces.evaluation_data import EvaluationData
