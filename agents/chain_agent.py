@@ -31,9 +31,6 @@ Product Information:
 
 {previous_evaluation}
 
-Previous Evaluation:
-{input.previous_evaluation}
-
 Reviews:
 {reviews}
         """
@@ -48,6 +45,3 @@ Reviews:
         
         formatted_input = self.format_input(chain_data)
 
-        print("-"*50)
-        print(formatted_input)
-        return self.llm.answer(formatted_input)
