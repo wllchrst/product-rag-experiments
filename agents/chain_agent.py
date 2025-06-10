@@ -45,3 +45,18 @@ Reviews:
         
         formatted_input = self.format_input(chain_data)
 
+        return self.llm.answer(formatted_input)
+    
+    def format_all_evaluation(self, evaluations: list[str]):
+        """
+        Formats all evaluations into a single string.
+        """
+        formatted_evaluations = "\n".join(evaluations)
+
+        input = f"""
+Can you help me combine the following evaluations? Please make sure your answer is just a list of evaluations without any additional text.
+
+{formatted_evaluations}
+        """
+
+        return self.llm.answer(input)

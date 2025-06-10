@@ -85,6 +85,7 @@ class AgentHandler:
                         product_information: ProductInformation) -> str:
 
         previous_evaluation = ''
+        evaluations = []
         for grouped_review in grouped_reviews.values():
             cbi = ChainBasedInput(
                 reviews=grouped_review,
@@ -94,11 +95,20 @@ class AgentHandler:
             )
             
             result= self.chain_agent.execute_task(data=asdict(cbi))
-            print(result)
-            previous_evaluation = result
+            previous_evaluation += result
+            evaluations.append(result)
+        
+        final_result = self.chain_agent.format_all_evaluation(evaluations)
 
-        print(previous_evaluation)
-        return ""
+        self.evaluation_handler.evaluate(
+            product_information=product_information,
+            ground_truths=gts,
+            prediction=final_result,
+            product_search=product_search,
+            method="chaining"
+        )
+
+        return final_result
     
     def parallelization(self,
                         product_search: str, 
@@ -123,7 +133,8 @@ class AgentHandler:
             product_information=product_information,
             ground_truths=gts,
             prediction=final_answer,
-            product_search=product_search
+            product_search=product_search,
+            method="parallel"
         )
         
         return final_answer
