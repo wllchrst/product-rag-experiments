@@ -29,7 +29,8 @@ class LoggingHandler:
         prediction = evaluation_data.prediction_result
 
         try:
-            experiment_name = datetime.now().strftime("experiment-%Y%m%d-%H%M%S")
+            experiment_name = datetime.now().strftime("-experiment-%Y%m%d-%H%M%S-")
+            experiment_name = product_information.name + experiment_name + evaluation_data.method
 
             with mlflow.start_run(run_name=experiment_name):
                 mlflow.log_param("product_name", product_information.name)
