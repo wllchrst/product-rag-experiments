@@ -13,3 +13,4 @@ class EvaluationData:
     bert: dict
     bleu: dict
     product_search: str
+    method: str

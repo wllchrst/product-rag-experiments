@@ -1,6 +1,7 @@
 import mlflow
 import numpy as np
 from helpers import env_helper
+from datetime import datetime
 from interfaces import EvaluationData
 from interfaces.evaluation_data import EvaluationData
 class LoggingHandler:
@@ -28,13 +29,16 @@ class LoggingHandler:
         prediction = evaluation_data.prediction_result
 
         try:
-            with mlflow.start_run():
+            experiment_name = datetime.now().strftime("experiment-%Y%m%d-%H%M%S")
+
+            with mlflow.start_run(run_name=experiment_name):
                 mlflow.log_param("product_name", product_information.name)
                 mlflow.log_param("product_description", product_information.description)
                 mlflow.log_param("price", product_information.price)
                 mlflow.log_param("ground_truths", ground_truths)
                 mlflow.log_param("prediction", prediction)
                 mlflow.log_param("product_search", evaluation_data.product_search)
+                mlflow.log_param("method", evaluation_data.method)
 
                 self.insert_metric_from_dict(evaluation_data.bert, 'bert')
                 self.insert_metric_from_dict(evaluation_data.bleu, 'bleu')
