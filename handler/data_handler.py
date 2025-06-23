@@ -1,10 +1,11 @@
 import pandas as pd
 from typing import List, Tuple
-from interfaces import Review, ProductInformation 
+from interfaces import Review, ProductInformation, UserReview
 class DataHandler:
     def __init__(self):
         self.product_data = pd.read_excel('./data/product_data.xlsx')
         self.reviews = pd.read_excel('./data/product_reviews.xlsx')
+        self.user_reviews = pd.read_excel('./data/user_reviews.xlsx')
 
     def get_dummy_data(self) -> Tuple[List[Review], ProductInformation]:
         df = pd.read_csv('./data/PRDECT-ID Dataset.csv')
@@ -35,6 +36,22 @@ class DataHandler:
         )
 
         return (reviews, dummy_product_information)
+    
+    def get_user_reviews(self, product_name: str) -> List[UserReview]:
+        user_review = self.user_reviews[self.user_reviews['product_name'] == product_name]
+        if user_review.empty:
+            raise ValueError(f"No user reviews found for product: {product_name}")
+
+        user_reviews: List[UserReview] = []
+        for _, review_row in user_review.iterrows():
+            r = UserReview(
+                user_name=review_row['user_name'],
+                product_name=review_row['product_name'],
+                review=review_row['user_input']
+            )
+            user_reviews.append(r)
+
+        return user_reviews
     
     def get_data(self, product_name: str) -> Tuple[List[Review], ProductInformation]:
         product_data = self.product_data[self.product_data['name'] == product_name].iloc[0]

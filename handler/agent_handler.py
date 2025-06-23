@@ -79,11 +79,19 @@ class AgentHandler:
 
         return final_answer
     
+    def gather_ground_truths(self, product_name: str) -> list[str]:
+        """
+        Gather ground truths for the product.
+        """
+        user_reviews = self.data_handler.get_user_reviews(product_name=product_name)
+        ground_truths = [review.review for review in user_reviews]
+
+        return ground_truths
+
     def prompt_chaining(self,
                         product_search: str, 
                         grouped_reviews: defaultdict[any, list], 
                         product_information: ProductInformation) -> str:
-
         previous_evaluation = ''
         evaluations = []
         for grouped_review in grouped_reviews.values():
@@ -100,9 +108,11 @@ class AgentHandler:
         
         final_result = self.chain_agent.format_all_evaluation(evaluations)
 
+        ground_truths = self.gather_ground_truths(product_name=product_information.name)
+
         self.evaluation_handler.evaluate(
             product_information=product_information,
-            ground_truths=gts,
+            ground_truths=ground_truths,
             prediction=final_result,
             product_search=product_search,
             method="chaining"
@@ -129,9 +139,11 @@ class AgentHandler:
         final_answer = self.conclusion_agent.\
             execute_task(data=asdict(conclusion_input))
         
+        ground_truths = self.gather_ground_truths(product_name=product_information.name)
+        
         self.evaluation_handler.evaluate(
             product_information=product_information,
-            ground_truths=gts,
+            ground_truths=ground_truths,
             prediction=final_answer,
             product_search=product_search,
             method="parallel"
