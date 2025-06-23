@@ -5,3 +5,4 @@ from interfaces.conclusion_based_input import ConclusionBasedInput
 from interfaces.chain_based_input import ChainBasedInput
 from interfaces.agent_config import AgentConfig
 from interfaces.evaluation_data import EvaluationData
+from interfaces.user_review import UserReview
