@@ -1,13 +1,14 @@
-from interfaces import EmotionBasedInput, ConclusionBasedInput
+from interfaces import EmotionBasedInput, ConclusionBasedInput, BaselineBasedInput, Review
 from handler.data_handler import DataHandler
 from handler.classification_handler import ClassificationHandler
 from handler.evaluation_handler import EvaluationHandler
-from agents import EmotionBasedAgent, ConclusionAgent, WebAgent, ChainAgent
+from agents import EmotionBasedAgent, ConclusionAgent, WebAgent, ChainAgent, BaselineAgent
 from dataclasses import asdict
 from collections import defaultdict
 from interfaces.product_information import ProductInformation
 from interfaces import ChainBasedInput
 from agents.chain_agent import ChainAgent
+from typing import List
 
 gts = [
     """- The packaging needs to be improved because there are still many damaged ones
@@ -32,6 +33,7 @@ class AgentHandler:
         self.conclusion_agent = ConclusionAgent(config_key='conclusion_based_config')
         self.chain_agent = ChainAgent(config_key='chain_based_config')
         self.web_agent =  WebAgent('web_based_config')
+        self.baseline_agent = BaselineAgent(config_key='baseline_based_config')
 
     def test_evaluation_agent(self):
         """
@@ -57,6 +59,7 @@ class AgentHandler:
         reviews, product_information = self.data_handler.get_data(product_name=product_name)
         reviews = self.classification_handler.assign_emotion(reviews)
         grouped_reviews = defaultdict(list)
+        ground_truths = self.gather_ground_truths(product_name=product_information.name)
         
         for review in reviews:
             grouped_reviews[review.emotion].append(review)
@@ -68,13 +71,21 @@ class AgentHandler:
             final_answer = self.parallelization(
                 product_search=product_search, 
                 grouped_reviews=grouped_reviews, 
-                product_information=product_information
+                product_information=product_information,
+                ground_truths=ground_truths
             )
         elif type == 'chaining':
             final_answer = self.prompt_chaining(
                 product_search=product_search, 
                 grouped_reviews=grouped_reviews, 
-                product_information=product_information
+                product_information=product_information,
+                ground_truths=ground_truths
+            )
+        elif type == 'baseline':
+            final_answer = self.baseline_evaluation(
+                product_information=product_information, 
+                reviews=reviews, 
+                ground_truths=ground_truths
             )
 
         return final_answer
@@ -87,11 +98,33 @@ class AgentHandler:
         ground_truths = [review.review for review in user_reviews]
 
         return ground_truths
+    
+    def baseline_evaluation(self, product_information: ProductInformation, reviews: List[Review], ground_truths: List[str]) -> str:
+        """
+        Evaluate the product using baseline evaluation.
+        """
+        baseline_input = BaselineBasedInput(
+            product_information=product_information,
+            reviews=reviews
+        )
+        
+        result = self.baseline_agent.execute_task(data=asdict(baseline_input))
+
+        self.evaluation_handler.evaluate(
+            product_information=product_information,
+            ground_truths=ground_truths,
+            prediction=result,
+            product_search=product_information.name,
+            method="baseline"
+        )
+
+        return result
 
     def prompt_chaining(self,
                         product_search: str, 
                         grouped_reviews: defaultdict[any, list], 
-                        product_information: ProductInformation) -> str:
+                        product_information: ProductInformation,
+                        ground_truths: List[str]) -> str:
         previous_evaluation = ''
         evaluations = []
         for grouped_review in grouped_reviews.values():
@@ -108,8 +141,6 @@ class AgentHandler:
         
         final_result = self.chain_agent.format_all_evaluation(evaluations)
 
-        ground_truths = self.gather_ground_truths(product_name=product_information.name)
-
         self.evaluation_handler.evaluate(
             product_information=product_information,
             ground_truths=ground_truths,
@@ -123,7 +154,8 @@ class AgentHandler:
     def parallelization(self,
                         product_search: str, 
                         grouped_reviews: defaultdict[any, list], 
-                        product_information: ProductInformation) -> str:
+                        product_information: ProductInformation,
+                        ground_truths: list[str]) -> str:
         conclusions = []
         for grouped_review in grouped_reviews.values():
             ebi = EmotionBasedInput(
@@ -138,8 +170,6 @@ class AgentHandler:
         
         final_answer = self.conclusion_agent.\
             execute_task(data=asdict(conclusion_input))
-        
-        ground_truths = self.gather_ground_truths(product_name=product_information.name)
         
         self.evaluation_handler.evaluate(
             product_information=product_information,
